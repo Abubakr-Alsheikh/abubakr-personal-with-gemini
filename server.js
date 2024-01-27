@@ -31,7 +31,7 @@ const {
 } = require("@google/generative-ai");
 
 const MODEL_NAME = "gemini-pro";
-const API_KEY = "AIzaSyDImkUGnm2gKkDRxm9wp6ZFU9msRgMrUSs";
+const API_KEY = process.env.GEMINI_API_KEY;
 
 async function runChat() {
   const genAI = new GoogleGenerativeAI(API_KEY);
@@ -174,10 +174,14 @@ async function runChat() {
 
 
 // Handle POST requests to specific URLs i.e. webhook endpoints
-router.post("/webhook-1", (req, res, next) => {
+router.post("/webhook-1", async (req, res, next) => {
   console.log(req.body);
-  const chatResponse = runChat();
-  res.send(`Webhook 1 successfully received. ${chatResponse}`);
+  try {
+    const chatResponse = await runChat();
+    res.send(`Webhook 1 successfully received. ${chatResponse}`);
+  } catch (error) {
+    res.status(500).send(`Error: ${error.message}`);
+  }
 });
 
 
