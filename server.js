@@ -33,7 +33,7 @@ const {
 const MODEL_NAME = "gemini-pro";
 const API_KEY = process.env.GEMINI_API_KEY;
 
-async function runChat() {
+async function runChat(userMessage) {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
@@ -166,7 +166,7 @@ async function runChat() {
     ],
   });
 
-  const result = await chat.sendMessage("Hello, how are you?");
+  const result = await chat.sendMessage(userMessage);
   const response = result.response;
   console.log(response.text());
   return response.text();
@@ -177,10 +177,10 @@ async function runChat() {
 router.post("/webhook-1", async (req, res, next) => {
   console.log(req.body);
   try {
-    const chatResponse = await runChat();
-    res.send(`Webhook 1 successfully received. ${chatResponse}`);
+    const chatResponse = await runChat(req.body.message);
+    res.send(`${chatResponse}`);
   } catch (error) {
-    res.status(500).send(`Error: ${error.message}`);
+    res.status(500).send(`I am sorry, but something went wrong. You can connact me to solve this problem<br>Here is the error: ${error.message}`);
   }
 });
 
