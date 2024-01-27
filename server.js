@@ -132,7 +132,7 @@ let chatHistory = [
       },
     ];
 
-async function runChat(userMessage) {
+async function runChat(userchat) {
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
@@ -162,32 +162,18 @@ async function runChat(userMessage) {
     },
   ];
 
+  let combinedHistory = [...chatHistory, ...userchat];
   const chat = model.startChat({
     generationConfig,
     safetySettings,
-    history: chatHistory,
-  });
-
-  const result = await chat.sendMessage(userMessage);
-  chatHistory.push({
-    role: "user",
-    parts: [
-      {
-        text: userMessage,
-      },
-    ],
+    history: combinedHistory,
   });
   
+  let lastUserMessage = userchat[userchat.length - 1].parts[0].text;
+  const result = await chat.sendMessage(lastUserMessage);
   const response = result.response;
-  chatHistory.push({
-    role: "model",
-    parts: [
-      {
-        text: response.text(),
-      },
-    ],
-  });
-  console.log(chatHistory.toString());
+  
+  console.log(combinedHistory.toString());
   console.log(response.text());
   return response.text();
 }
@@ -197,7 +183,7 @@ async function runChat(userMessage) {
 router.post("/webhook-1", async (req, res, next) => {
   console.log(req.body);
   try {
-    const chatResponse = await runChat(req.body.message);
+    const chatResponse = await runChat(req.body.userchat);
     res.send(`${chatResponse}`);
   } catch (error) {
     res.status(500).send(`I am sorry, but something went wrong. You can connact me to solve this problem<br>Here is the error: ${error.message}`);
