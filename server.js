@@ -176,10 +176,10 @@ async function runChat() {
 // Handle POST requests to specific URLs i.e. webhook endpoints
 router.post("/webhook-1", (req, res, next) => {
   console.log(req.body);
-  res.send("Webhook 1 successfully received.");
-  
-  res.send(runChat());
+  const chatResponse = runChat();
+  res.send(`Webhook 1 successfully received. ${chatResponse}`);
 });
+
 
 router.post("/webhook-2", (req, res) => {
   console.log(req.body);
